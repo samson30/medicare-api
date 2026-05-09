@@ -1,5 +1,5 @@
 package com.samson.medicare.entity;
-import com.samson.medicare.entity.Gender;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -7,15 +7,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "patients")
+@Table(name = "doctors")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Patient {
+public class Doctor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,18 +39,17 @@ public class Patient {
     @Column(nullable = false)
     private String phone;
 
-    @Column(name = "date_of_birth")
-    private LocalDate dateOfBirth;
-
     @Enumerated(EnumType.STRING)
-    private Gender gender;
+    @Column(nullable = false)
+    private Specialization specialization;
 
-    @Column(columnDefinition = "TEXT")
-    private String address;
+    @Column(name = "license_number", unique = true)
+    private String licenseNumber;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "primary_doctor_id")
-    private Doctor primaryDoctor;
+    private Integer yearsOfExperience;
+
+    @OneToMany(mappedBy = "primaryDoctor", fetch = FetchType.LAZY)
+    private List<Patient> patients = new ArrayList<>();
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
