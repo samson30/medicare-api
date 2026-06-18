@@ -1,0 +1,23 @@
+
+services:
+  app:
+    build: .
+    container_name: medicare-api
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:h2:mem:medicare
+      - SPRING_DATASOURCE_USERNAME=sa
+      - SPRING_DATASOURCE_PASSWORD=
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - JWT_SECRET=YourSuperSecretKeyForMediCareAppMustBeAtLeast256BitsLongForHS256Algorithm
+      - JWT_EXPIRATION=86400000
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    container_name: medicare-redis
+    ports:
+      - "6379:6379"
