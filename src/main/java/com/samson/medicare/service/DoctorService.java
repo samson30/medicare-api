@@ -10,6 +10,8 @@ import com.samson.medicare.repository.DoctorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.List;
 
@@ -48,12 +50,14 @@ public class DoctorService {
                 .toList();
     }
 
+    @Cacheable(value = "doctors", key = "#id")
     public DoctorResponse getDoctorById(Long id) {
         Doctor doctor = doctorRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id: " + id));
         return mapToResponse(doctor);
     }
 
+    @Cacheable(value = "doctorsBySpecialization", key = "#specialization")
     public List<DoctorResponse> getDoctorsBySpecialization(Specialization specialization) {
         return doctorRepository.findBySpecialization(specialization)
                 .stream()
@@ -62,6 +66,7 @@ public class DoctorService {
     }
 
     @Transactional
+    @CacheEvict(value = {"doctors", "doctorsBySpecialization"}, allEntries = true)
     public DoctorResponse updateDoctor(Long id, DoctorRequest request) {
         Doctor doctor = doctorRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id: " + id));
@@ -79,6 +84,7 @@ public class DoctorService {
     }
 
     @Transactional
+    @CacheEvict(value = {"doctors", "doctorsBySpecialization"}, allEntries = true)
     public void deleteDoctor(Long id) {
         if (!doctorRepository.existsById(id)) {
             throw new ResourceNotFoundException("Doctor not found with id: " + id);
